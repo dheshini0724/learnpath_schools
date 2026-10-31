@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnPath for Schools - Adaptive AI Tutor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Variables per specification */
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --side: #12151b;
+      --tx: #e8ebf2;
+      --mut: #9aa3b2;
+      --bd: #262b36;
+      --ac: #3b82f6;
+      --ok: #22c55e;
+      --bad: #ef4444;
+      --warn: #f59e0b;
+      color-scheme: dark;
+    }
+
+    [data-theme="light"] {
+      --bg: #f4f6fa;
+      --panel: #ffffff;
+      --side: #eef1f7;
+      --tx: #14171f;
+      --mut: #5b6474;
+      --bd: #d9dee8;
+      --ac: #2563eb;
+      --ok: #16a34a;
+      --bad: #dc2626;
+      --warn: #d97706;
+      color-scheme: light;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--tx);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      font-size: 15px;
+    }
+
+    /* WCAG 2.2 AA Focus Outlines */
+    *:focus-visible {
+      outline: 3px solid var(--ac) !important;
+      outline-offset: 2px !important;
+    }
+
+    /* 44x44px minimum touch targets for interactive elements */
+    button, input, select, textarea, .nav-btn, .option-card, .palette-btn {
+      min-height: 44px;
+    }
+
+    /* Primary buttons: white text on --ac */
+    .btn-primary {
+      background-color: var(--ac);
+      color: #ffffff !important;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover {
+      opacity: 0.92;
+    }
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    .btn-primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--tx);
+      border: 1px solid var(--bd);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .btn-secondary:hover {
+      background-color: var(--bd);
+    }
+
+    .btn-outline-danger {
+      background-color: transparent;
+      color: var(--bad);
+      border: 1px solid var(--bad);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    /* Layout: Left Sidebar + Main View */
+    #sidebar {
+      width: 260px;
+      background-color: var(--side);
+      border-right: 1px solid var(--bd);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 40;
+      transition: transform 0.3s ease;
+    }
+
+    .brand-section {
+      padding: 24px 20px;
+      border-bottom: 1px solid var(--bd);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--ac), #60a5fa);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 18px;
+    }
+    .brand-info h1 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--tx);
+      line-height: 1.2;
+    }
+    .brand-info span {
+      font-size: 11px;
+      color: var(--mut);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .nav-menu {
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: var(--mut);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: left;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .nav-btn:hover {
+      background-color: var(--panel);
+      color: var(--tx);
+    }
+    .nav-btn.active {
+      background-color: var(--panel);
+      color: var(--ac);
+      border-left: 3px solid var(--ac);
+      font-weight: 600;
+    }
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2;
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--bd);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .role-badge-box {
+      background: var(--panel);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .role-badge-box select {
+      background: transparent;
+      border: none;
+      color: var(--ac);
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .theme-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--mut);
+      font-size: 13px;
+    }
+    .switch-toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+    .switch-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--bd);
+      transition: .3s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--ac);
+    }
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Main Container */
+    #main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background-color: var(--bg);
+    }
+
+    /* Top mobile bar */
+    .top-bar-mobile {
+      display: none;
+      background: var(--side);
+      border-bottom: 1px solid var(--bd);
+      padding: 12px 16px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .content-area {
+      padding: 32px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Card Panels */
+    .card {
+      background-color: var(--panel);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--bd);
+      padding-bottom: 14px;
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--tx);
+    }
+    .card-subtitle {
+      font-size: 13px;
+      color: var(--mut);
+      margin-top: 2px;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-ok { background: rgba(34, 197, 94, 0.15); color: var(--ok); border: 1px solid var(--ok); }
+    .badge-bad { background: rgba(239, 68, 68, 0.15); color: var(--bad); border: 1px solid var(--bad); }
+    .badge-warn { background: rgba(245, 158, 11, 0.15); color: var(--warn); border: 1px solid var(--warn); }
+    .badge-ac { background: rgba(59, 130, 246, 0.15); color: var(--ac); border: 1px solid var(--ac); }
+    .badge-draft { background: rgba(154, 163, 178, 0.15); color: var(--mut); border: 1px solid var(--mut); }
+
+    /* Progress bar */
+    .progress-track {
+      background-color: var(--bd);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-fill {
+      background-color: var(--ac);
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    /* Views */
+    .view-panel {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+    .view-panel.active-view {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-box {
+      background: var(--panel);
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      max-width: 520px;
+      width: 90%;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    /* Form inputs */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--tx);
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      background-color: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      color: var(--tx);
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .form-control:focus {
+      border-color: var(--ac);
+    }
+
+    /* Mock test UI */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .palette-btn {
+      width: 100%;
+      height: 42px;
+      border-radius: 8px;
+      border: 1px solid var(--bd);
+      background: var(--bg);
+      color: var(--tx);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .palette-btn.active {
+      border-color: var(--ac);
+      box-shadow: 0 0 0 2px var(--ac);
+    }
+    .palette-btn.answered {
+      background: var(--ok);
+      color: #fff;
+      border-color: var(--ok);
+    }
+    .palette-btn.review {
+      background: var(--warn);
+      color: #000;
+      border-color: var(--warn);
+    }
+
+    .option-card {
+      padding: 14px 18px;
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg);
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+    .option-card:hover {
+      border-color: var(--ac);
+    }
+    .option-card.selected {
+      border-color: var(--ac);
+      background: rgba(59, 130, 246, 0.1);
+    }
+    .option-radio {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--ac);
+    }
+
+    /* Chat UI */
+    .chat-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+      height: calc(100vh - 120px);
+    }
+    .chat-container {
+      background: var(--panel);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .chat-bubble {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .chat-bubble.user {
+      align-self: flex-end;
+      background-color: var(--ac);
+      color: #fff;
+      border-bottom-right-radius: 2px;
+    }
+    .chat-bubble.tutor {
+      align-self: flex-start;
+      background-color: var(--bg);
+      border: 1px solid var(--bd);
+      color: var(--tx);
+      border-bottom-left-radius: 2px;
+    }
+    .chat-bubble.safety {
+      align-self: flex-start;
+      background-color: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--bad);
+      color: var(--tx);
+    }
+
+    .chat-input-bar {
+      padding: 16px;
+      border-top: 1px solid var(--bd);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: var(--panel);
+    }
+
+    .chat-side-panel {
+      background: var(--panel);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    /* Memory Tree Grid */
+    .tree-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+    .concept-card {
+      background: var(--panel);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .concept-card:hover {
+      border-color: var(--ac);
+      transform: translateY(-2px);
+    }
+    .concept-card.locked {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* Heatmap Grid */
+    .heatmap-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .heatmap-table th, .heatmap-table td {
+      border: 1px solid var(--bd);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 13px;
+    }
+    .heatmap-cell {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* Tabs */
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid var(--bd);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--mut);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      color: var(--ac);
+      border-bottom-color: var(--ac);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      #sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        display: none;
+      }
+      #sidebar.mobile-open {
+        display: flex;
+      }
+      .top-bar-mobile {
+        display: flex;
+      }
+      .chat-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .content-area {
+        padding: 20px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile Top Bar -->
+  <div class="top-bar-mobile">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="brand-logo" style="width:28px; height:28px; font-size:14px;">LP</div>
+      <span style="font-weight:700; font-size:15px;" id="mobile-brand-title">LearnPath</span>
+    </div>
+    <button class="btn-secondary" style="padding:6px 12px;" onclick="toggleMobileMenu()" aria-label="Toggle Navigation Menu">Menu</button>
+  </div>
+
+  <!-- Left Sidebar -->
+  <aside id="sidebar">
+    <div class="brand-section">
+      <div class="brand-logo">LP</div>
+      <div class="brand-info">
+        <h1 id="app-brand-name">LearnPath</h1>
+        <span>Adaptive School Tutor</span>
+      </div>
+    </div>
+
+    <nav class="nav-menu" aria-label="Main Navigation">
+      <button class="nav-btn active" onclick="switchView('chats')" id="nav-chats">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Chats (Ask Anything)
+      </button>
+      <button class="nav-btn" onclick="switchView('mock-test')" id="nav-mock-test">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Mock Test
+      </button>
+      <button class="nav-btn" onclick="switchView('practice')" id="nav-practice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
+        Practice & Diagnosis
+      </button>
+      <button class="nav-btn" onclick="switchView('memory-tree')" id="nav-memory-tree">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Memory Tree
+      </button>
+      <button class="nav-btn" onclick="switchView('library-vault')" id="nav-library-vault">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Library Vault
+      </button>
+      <button class="nav-btn" onclick="switchView('progress')" id="nav-progress">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Progress
+      </button>
+
+      <!-- Role specific nav items -->
+      <div id="role-nav-divider" style="height:1px; background:var(--bd); margin:8px 0;"></div>
+      <button class="nav-btn" onclick="switchView('guardian-view')" id="nav-guardian">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Guardian View
+      </button>
+      <button class="nav-btn" onclick="switchView('teacher-view')" id="nav-teacher">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Teacher View
+      </button>
+      <button class="nav-btn" onclick="switchView('admin-view')" id="nav-admin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Admin Catalog
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="role-badge-box">
+        <span style="color:var(--mut);">Role:</span>
+        <select id="active-role-select" onchange="changeRole(this.value)">
+          <option value="student">Student</option>
+          <option value="guardian">Guardian</option>
+          <option value="teacher">Teacher</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <div class="theme-toggle-row">
+        <span>Light Mode</span>
+        <label class="switch-toggle">
+          <input type="checkbox" id="theme-toggle" onchange="toggleTheme(this.checked)" aria-label="Toggle light theme">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <button class="btn-secondary" style="font-size:12px; padding:6px 10px;" onclick="showOnboardingModal()">
+        Update Profile & Consent
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main View Area -->
+  <main id="main-container">
+    <div class="content-area">
+
+      <!-- ================= VIEW 1: CHATS (ASK ANYTHING) ================= -->
+      <section id="view-chats" class="view-panel active-view">
+        <div class="card-header" style="border:none; padding:0; margin-bottom:14px;">
+          <div>
+            <h2 class="card-title">Ask Anything</h2>
+            <p class="card-subtitle">AI-assisted tutor with child safety filters and PII redaction. Tele-MANAS: 14416 | Emergency: 112</p>
+          </div>
+        </div>
+
+        <div class="chat-layout">
+          <!-- Chat box -->
+          <div class="chat-container">
+            <div class="chat-messages" id="chat-messages-box">
+              <div class="chat-bubble tutor">
+                <strong>Hello! I'm your LearnPath tutor.</strong><br>
+                What concept would you like to explore today? You can ask questions, ask for homework hints, or attach problems from your notes.
+              </div>
+            </div>
+
+            <!-- Suggestion chips -->
+            <div id="chat-suggestions" style="padding:10px 16px; display:flex; gap:8px; overflow-x:auto; background:var(--panel); border-top:1px solid var(--bd);">
+              <button class="btn-secondary" style="font-size:12px; padding:4px 10px; min-height:32px;" onclick="sendQuickPrompt('Explain how to add fractions with different denominators')">Explain adding fractions</button>
+              <button class="btn-secondary" style="font-size:12px; padding:4px 10px; min-height:32px;" onclick="sendQuickPrompt('What is an equivalent fraction and why does it work?')">Equivalent fractions</button>
+              <button class="btn-secondary" style="font-size:12px; padding:4px 10px; min-height:32px;" onclick="sendQuickPrompt('Give me a real-life example of fraction multiplication')">Fraction multiplication</button>
+            </div>
+
+            <!-- Attached text confirmation box -->
+            <div id="attachment-preview-box" style="display:none; padding:10px 16px; background:rgba(59,130,246,0.1); border-top:1px solid var(--bd); font-size:13px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span>Attached text preview: <strong id="attachment-name">note.txt</strong></span>
+                <button class="btn-secondary" style="padding:2px 8px; min-height:28px;" onclick="clearAttachment()">Remove</button>
+              </div>
+              <p id="attachment-text-snippet" style="margin-top:4px; color:var(--mut); font-family:monospace; font-size:12px; max-height:60px; overflow-y:auto;"></p>
+            </div>
+
+            <!-- Input bar -->
+            <div class="chat-input-bar">
+              <input type="file" id="chat-file-input" style="display:none;" onchange="handleFileAttach(event)">
+              <button class="btn-secondary" style="padding:10px 12px;" onclick="document.getElementById('chat-file-input').click()" title="Attach PDF or Text file" aria-label="Attach File">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              </button>
+              <input type="text" id="chat-input-text" class="form-control" placeholder="Ask a question or explain where you are stuck..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+              <button class="btn-primary" onclick="sendChatMessage()">Send</button>
+            </div>
+          </div>
+
+          <!-- Side Panel: Last Test Questions -->
+          <div class="chat-side-panel">
+            <h3 style="font-size:14px; font-weight:700; margin-bottom:12px;">Last Test Questions</h3>
+            <p style="font-size:12px; color:var(--mut); margin-bottom:12px;">Click any question from your previous test to have the AI explain the solution step-by-step.</p>
+            <div id="last-test-questions-list" style="display:flex; flex-direction:column; gap:8px;">
+              <div class="card" style="padding:12px; margin:0; cursor:pointer;" onclick="sendQuickPrompt('Please explain question: What is 1/3 + 1/4 and why is 2/7 wrong?')">
+                <div style="font-size:12px; font-weight:600;">Q1: 1/3 + 1/4</div>
+                <div style="font-size:11px; color:var(--bad);">Mistake: Added numerators & denominators</div>
+              </div>
+              <div class="card" style="padding:12px; margin:0; cursor:pointer;" onclick="sendQuickPrompt('Please explain question: Which fraction is equivalent to 3/4?')">
+                <div style="font-size:12px; font-weight:600;">Q2: Equivalent to 3/4</div>
+                <div style="font-size:11px; color:var(--ok);">Result: Correct</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 2: MOCK TEST ================= -->
+      <section id="view-mock-test" class="view-panel">
+        
+        <!-- STEP 1 & 2: SETUP -->
+        <div id="mock-setup-section" class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Mock Test Generator</h2>
+              <p class="card-subtitle">Timed simulated examination with negative marking (+1 correct, -0.25 wrong, 0 skipped).</p>
+            </div>
+          </div>
+
+          <!-- Step 1: Choose Source -->
+          <div style="margin-bottom:24px;">
+            <label style="font-weight:700; display:block; margin-bottom:12px;">Step 1: Choose Test Source</label>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+              <div class="option-card selected" id="source-card-subject" onclick="selectTestSource('subject')">
+                <input type="radio" name="test-source" id="source-subject" checked class="option-radio">
+                <div>
+                  <div style="font-weight:600; font-size:14px;">Predefined Subject</div>
+                  <div style="font-size:12px; color:var(--mut);">Grade 7 Mathematics (Approved Curriculum)</div>
+                </div>
+              </div>
+
+              <div class="option-card" id="source-card-vault" onclick="selectTestSource('vault')">
+                <input type="radio" name="test-source" id="source-vault" class="option-radio">
+                <div>
+                  <div style="font-weight:600; font-size:14px;">Library Vault Item</div>
+                  <div style="font-size:12px; color:var(--mut);">Approved classroom guides & notes</div>
+                </div>
+              </div>
+
+              <div class="option-card" id="source-card-topic" onclick="selectTestSource('topic')">
+                <input type="radio" name="test-source" id="source-topic" class="option-radio">
+                <div>
+                  <div style="font-weight:600; font-size:14px;">Custom Topic (Free Text)</div>
+                  <div style="font-size:12px; color:var(--mut);">Generates test (Labeled: Not teacher-reviewed)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Source detail inputs -->
+          <div id="topic-input-container" style="display:none; margin-bottom:20px;">
+            <div class="form-group">
+              <label for="custom-topic-text">Enter Custom Topic or Paste Syllabus:</label>
+              <textarea id="custom-topic-text" class="form-control" rows="3" placeholder="e.g. Addition of fractions and finding lowest common multiples"></textarea>
+            </div>
+          </div>
+
+          <!-- Step 2: Test Parameters -->
+          <div style="margin-bottom:24px;">
+            <label style="font-weight:700; display:block; margin-bottom:12px;">Step 2: Configuration</label>
+            <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px;">
+              <button class="btn-primary" onclick="startMockTestQuick()">Quick Start (5 Questions, 5 Minutes)</button>
+              <button class="btn-secondary" onclick="toggleCustomTestFields()">Customize Test Settings</button>
+            </div>
+
+            <div id="custom-test-fields" style="display:none; background:var(--bg); border:1px solid var(--bd); padding:16px; border-radius:10px;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div class="form-group">
+                  <label for="test-q-count">Question Count: <span id="q-count-val">5</span></label>
+                  <input type="range" id="test-q-count" min="3" max="15" value="5" class="form-control" oninput="document.getElementById('q-count-val').innerText = this.value">
+                </div>
+                <div class="form-group">
+                  <label for="test-time-limit">Time Limit (Minutes): <span id="time-limit-val">5</span></label>
+                  <input type="range" id="test-time-limit" min="2" max="30" value="5" class="form-control" oninput="document.getElementById('time-limit-val').innerText = this.value">
+                </div>
+              </div>
+              <button class="btn-primary" onclick="startMockTestCustom()">Start Custom Test</button>
+            </div>
+          </div>
+
+          <!-- Test Generation Animation Overlay -->
+          <div id="test-gen-progress" style="display:none; padding:24px; background:var(--bg); border:1px solid var(--bd); border-radius:10px; text-align:center;">
+            <div style="width:40px; height:40px; border:3px solid var(--bd); border-top-color:var(--ac); border-radius:50%; animation:spin 1s infinite linear; margin:0 auto 16px;"></div>
+            <h4 id="gen-step-label" style="font-size:16px; font-weight:600; color:var(--tx);">Analyzing test configuration...</h4>
+            <div class="progress-track" style="margin-top:14px; max-width:300px; margin-left:auto; margin-right:auto;">
+              <div id="gen-progress-fill" class="progress-fill" style="width:25%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TEST TAKING CONTAINER -->
+        <div id="mock-taking-section" style="display:none;">
+          <div class="card" style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span id="test-type-badge" class="badge badge-ok">Teacher-Reviewed Curriculum Test</span>
+              <h3 id="test-display-title" style="margin-top:4px; font-size:18px;">Grade 7 Mathematics - Mock Exam</h3>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px; color:var(--mut);">Time Remaining:</div>
+              <div id="test-timer-display" style="font-size:24px; font-weight:800; font-family:'JetBrains Mono', monospace; color:var(--ok);">05:00</div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 280px; gap:20px;">
+            <!-- Question Content -->
+            <div class="card">
+              <div style="display:flex; justify-content:space-between; margin-bottom:14px;">
+                <span style="font-size:14px; font-weight:700; color:var(--mut);" id="question-number-badge">Question 1 of 5</span>
+                <span style="font-size:12px; color:var(--mut);">Marking: +1.0, -0.25</span>
+              </div>
+              <div id="mock-question-stem" style="font-size:18px; font-weight:600; margin-bottom:20px; line-height:1.4;">
+                What is 1/3 + 1/4?
+              </div>
+
+              <!-- Options -->
+              <div id="mock-options-container">
+                <!-- Dynamically rendered -->
+              </div>
+
+              <!-- Action Buttons -->
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px; padding-top:16px; border-top:1px solid var(--bd);">
+                <div style="display:flex; gap:10px;">
+                  <button class="btn-secondary" onclick="markForReview()">Review Later</button>
+                  <button class="btn-secondary" onclick="clearCurrentAnswer()">Clear Selection</button>
+                </div>
+                <div style="display:flex; gap:10px;">
+                  <button class="btn-secondary" id="btn-prev-q" onclick="navTestQuestion(-1)">Previous</button>
+                  <button class="btn-primary" id="btn-next-q" onclick="navTestQuestion(1)">Next</button>
+                  <button class="btn-primary" style="background-color:var(--ok);" onclick="confirmFinishTest()">Finish Test</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Question Palette Sidebar -->
+            <div class="card">
+              <h4 style="font-size:14px; font-weight:700; margin-bottom:12px;">Question Palette</h4>
+              <div class="palette-grid" id="test-palette-grid">
+                <!-- Dynamically rendered numbered buttons -->
+              </div>
+
+              <div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--bd); font-size:12px; display:flex; flex-direction:column; gap:6px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="width:12px; height:12px; border-radius:3px; background:var(--ok);"></span> Answered
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="width:12px; height:12px; border-radius:3px; background:var(--warn);"></span> Marked for Review
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="width:12px; height:12px; border-radius:3px; background:var(--bg); border:1px solid var(--bd);"></span> Unanswered
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTS SECTION -->
+        <div id="mock-results-section" style="display:none;" class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Test Results</h2>
+              <span id="results-reviewed-badge" class="badge badge-ok">Teacher-Reviewed</span>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn-secondary" onclick="switchView('chats')">Review with AI</button>
+              <button class="btn-primary" onclick="resetMockTestSetup()">New Test</button>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:24px;">
+            <div class="card" style="margin:0; text-align:center;">
+              <span style="font-size:12px; color:var(--mut);">Final Score (+1 / -0.25)</span>
+              <div id="res-score-val" style="font-size:32px; font-weight:800; color:var(--ac); margin-top:4px;">3.75 / 5.0</div>
+            </div>
+            <div class="card" style="margin:0; text-align:center;">
+              <span style="font-size:12px; color:var(--mut);">Accuracy</span>
+              <div id="res-accuracy-val" style="font-size:32px; font-weight:800; color:var(--ok); margin-top:4px;">80%</div>
+            </div>
+            <div class="card" style="margin:0; text-align:center;">
+              <span style="font-size:12px; color:var(--mut);">Correct / Wrong / Skipped</span>
+              <div id="res-breakdown-val" style="font-size:20px; font-weight:700; margin-top:8px;">4 / 1 / 0</div>
+            </div>
+          </div>
+
+          <!-- Tabs: Summary, Sections, Time, Answers -->
+          <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchResultTab('summary')">Summary</button>
+            <button class="tab-btn" onclick="switchResultTab('answers')">Question Breakdown</button>
+            <button class="tab-btn" onclick="switchResultTab('time')">Time Analysis</button>
+          </div>
+
+          <div id="tab-res-summary">
+            <p style="color:var(--tx); margin-bottom:12px;">You answered 4 questions correctly out of 5. One error was identified on <strong>Adding Fractions with Unlike Denominators</strong>.</p>
+            <div style="background:var(--bg); border:1px solid var(--bd); padding:16px; border-radius:10px;">
+              <strong>Diagnostic Feedback:</strong>
+              <p style="font-size:13px; color:var(--mut); margin-top:4px;">Detected misconception: Adding both numerator and denominator without calculating Least Common Multiple (LCM). Practice on this concept has been scheduled.</p>
+            </div>
+          </div>
+
+          <div id="tab-res-answers" style="display:none;">
+            <div id="results-answers-list" style="display:flex; flex-direction:column; gap:12px;">
+              <!-- Dynamically rendered detailed answer list with Ask AI buttons -->
+            </div>
+          </div>
+
+          <div id="tab-res-time" style="display:none;">
+            <p style="font-size:14px; color:var(--mut);">Completed in 3 minutes 42 seconds (Average 44 seconds per question).</p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= VIEW 3: PRACTICE & DIAGNOSIS ================= -->
+      <section id="view-practice" class="view-panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Adaptive Practice Session</h2>
+              <p class="card-subtitle">Bayesian Knowledge Tracing (BKT) updates mastery on unaided correct responses.</p>
+            </div>
+            <div id="practice-bkt-header" style="text-align:right;">
+              <span style="font-size:12px; color:var(--mut);">Current Concept Mastery</span>
+              <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
+                <div class="progress-track" style="width:120px;">
+                  <div id="practice-mastery-bar" class="progress-fill" style="width:20%;"></div>
+                </div>
+                <span id="practice-mastery-text" style="font-weight:700; font-size:13px;">0.20</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="practice-card-content">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+              <span id="practice-concept-name" class="badge badge-ac">Adding Fractions</span>
+              <span id="practice-condition-badge" class="badge badge-ok">Personalised Condition</span>
+            </div>
+
+            <h3 id="practice-stem" style="font-size:18px; font-weight:600; margin:16px 0;">What is 1/3 + 1/4?</h3>
+
+            <div id="practice-options-box" style="margin-bottom:20px;">
+              <!-- Options rendered dynamically -->
+            </div>
+
+            <!-- Hint Ladder Display Box -->
+            <div id="hint-display-box" style="display:none; background:var(--bg); border:1px solid var(--ac); border-radius:8px; padding:16px; margin-bottom:18px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-weight:700; color:var(--ac); font-size:13px;" id="hint-level-title">Hint Level 1 (Idea Prompt)</span>
+                <span style="font-size:11px; color:var(--mut);" id="hint-step-indicator">Level 1 of 4</span>
+              </div>
+              <p id="hint-text-content" style="font-size:14px; color:var(--tx);"></p>
+            </div>
+
+            <!-- Feedback Alert -->
+            <div id="practice-feedback-box" style="display:none; padding:16px; border-radius:8px; margin-bottom:18px;">
+              <!-- Dynamic feedback -->
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <button class="btn-secondary" id="btn-request-hint" onclick="requestNextHint()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Request Hint (<span id="hint-level-btn-num">1</span>/4)
+              </button>
+
+              <div style="display:flex; gap:12px;">
+                <button class="btn-secondary" id="btn-transfer-check" style="display:none;" onclick="triggerTransferCheck()">
+                  I think I've got it! (Transfer Check)
+                </button>
+                <button class="btn-primary" id="btn-check-practice" onclick="submitPracticeAnswer()">Check Answer</button>
+                <button class="btn-primary" id="btn-next-practice" style="display:none;" onclick="loadNextPracticeQuestion()">Next Question</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 4: MEMORY TREE ================= -->
+      <section id="view-memory-tree" class="view-panel">
+        <div class="card-header" style="border:none; padding:0; margin-bottom:20px;">
+          <div>
+            <h2 class="card-title">Memory Tree</h2>
+            <p class="card-subtitle">Concept prerequisite graph. Concepts unlock in prerequisite order when mastery reaches 0.90.</p>
+          </div>
+        </div>
+
+        <div class="tree-grid" id="memory-tree-grid">
+          <!-- Dynamically generated concept cards -->
+        </div>
+      </section>
+
+      <!-- ================= VIEW 5: LIBRARY VAULT ================= -->
+      <section id="view-library-vault" class="view-panel">
+        <div class="card-header" style="border:none; padding:0; margin-bottom:20px;">
+          <div>
+            <h2 class="card-title">Library Vault</h2>
+            <p class="card-subtitle">Approved curriculum textbooks and teacher notes. Only approved resources can be used in mock tests.</p>
+          </div>
+          <button class="btn-primary" onclick="showUploadModal()">Upload Resource</button>
+        </div>
+
+        <!-- Filter bar -->
+        <div style="display:flex; gap:14px; margin-bottom:20px; flex-wrap:wrap;">
+          <input type="text" id="lib-search-input" class="form-control" style="max-width:320px;" placeholder="Search resources..." oninput="filterLibrary()">
+          <select id="lib-grade-filter" class="form-control" style="max-width:180px;" onchange="filterLibrary()">
+            <option value="all">All Grades</option>
+            <option value="7" selected>Grade 7</option>
+            <option value="8">Grade 8</option>
+          </select>
+        </div>
+
+        <div class="tree-grid" id="library-grid">
+          <!-- Resource cards dynamically populated -->
+        </div>
+      </section>
+
+      <!-- ================= VIEW 6: PROGRESS ================= -->
+      <section id="view-progress" class="view-panel">
+        <div class="card-header" style="border:none; padding:0; margin-bottom:20px;">
+          <div>
+            <h2 class="card-title">Student Learning Progress</h2>
+            <p class="card-subtitle">Closed-loop evaluation: Bayesian Knowledge Tracing scores and spaced review schedules.</p>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:18px; margin-bottom:24px;">
+          <div class="card" style="margin:0;">
+            <span style="font-size:12px; color:var(--mut);">Concepts Mastered</span>
+            <div style="font-size:28px; font-weight:800; color:var(--ok); margin-top:4px;" id="prog-mastered-count">2 / 3</div>
+          </div>
+          <div class="card" style="margin:0;">
+            <span style="font-size:12px; color:var(--mut);">Total Practice Time</span>
+            <div style="font-size:28px; font-weight:800; color:var(--ac); margin-top:4px;">18 mins</div>
+          </div>
+          <div class="card" style="margin:0;">
+            <span style="font-size:12px; color:var(--mut);">Spaced Review Due</span>
+            <div style="font-size:28px; font-weight:800; color:var(--warn); margin-top:4px;">1 Concept</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px; font-weight:700; margin-bottom:14px;">Spaced Review Schedule (1, 3, 7, 21 Days)</h3>
+          <div id="spaced-review-list" style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--bg); border-radius:8px; border:1px solid var(--bd);">
+              <div>
+                <strong>Adding Fractions with Unlike Denominators</strong>
+                <div style="font-size:12px; color:var(--mut);">Review interval: Day 3 after initial mastery</div>
+              </div>
+              <span class="badge badge-warn">Due Today</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 7: GUARDIAN VIEW ================= -->
+      <section id="view-guardian-view" class="view-panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Guardian Monitoring Portal</h2>
+              <p class="card-subtitle">Data minimisation compliant: shows concept mastery and active misconceptions. Raw chat logs withheld for student privacy.</p>
+            </div>
+            <select class="form-control" style="width:200px;">
+              <option>Child: Student Demo (Grade 7)</option>
+            </select>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:20px;">
+            <div style="background:var(--bg); border:1px solid var(--bd); padding:16px; border-radius:10px;">
+              <span style="font-size:12px; color:var(--mut);">Consent Status</span>
+              <div style="font-weight:700; color:var(--ok); margin-top:4px;">Verified (Version v1.0, Stored with timestamp)</div>
+              <div style="font-size:12px; color:var(--mut); margin-top:4px;">Legal threshold: 18 years</div>
+            </div>
+            <div style="background:var(--bg); border:1px solid var(--bd); padding:16px; border-radius:10px;">
+              <span style="font-size:12px; color:var(--mut);">Weekly Study Time</span>
+              <div style="font-weight:700; color:var(--ac); margin-top:4px;">42 Minutes (Target: 60 mins)</div>
+            </div>
+          </div>
+
+          <h3 style="font-size:15px; font-weight:700; margin-bottom:10px;">Active Misconceptions in Progress</h3>
+          <div style="background:var(--bg); border:1px solid var(--bd); padding:14px; border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong style="color:var(--warn);">Adding Numerator and Denominator directly</strong>
+                <div style="font-size:12px; color:var(--mut);">Occurred in 2 mock tests. Automated contrasting-example repair cycle active.</div>
+              </div>
+              <span class="badge badge-warn">In Repair Cycle</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 8: TEACHER VIEW ================= -->
+      <section id="view-teacher-view" class="view-panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Teacher Command Dashboard</h2>
+              <p class="card-subtitle">Classroom mastery distribution and recurring misconception diagnostic heatmap.</p>
+            </div>
+            <span class="badge badge-ok">Class 7-A (32 Students)</span>
+          </div>
+
+          <h3 style="font-size:15px; font-weight:700; margin-bottom:10px;">Misconception Heatmap Matrix</h3>
+          <table class="heatmap-table">
+            <thead>
+              <tr>
+                <th>Concept</th>
+                <th>Misconception</th>
+                <th>Frequency</th>
+                <th>Intervention</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Adding Fractions</td>
+                <td>misc-add-num-den (1/3 + 1/4 = 2/7)</td>
+                <td><div class="heatmap-cell" style="background:rgba(239, 68, 68, 0.25); color:var(--bad);">14 Students (43%)</div></td>
+                <td>Contrasting Examples active</td>
+              </tr>
+              <tr>
+                <td>Equivalent Fractions</td>
+                <td>misc-mult-num-only (3/4 = 6/4)</td>
+                <td><div class="heatmap-cell" style="background:rgba(245, 158, 11, 0.25); color:var(--warn);">6 Students (18%)</div></td>
+                <td>Visual ladder active</td>
+              </tr>
+              <tr>
+                <td>Multiplying Fractions</td>
+                <td>misc-mult-add-den (2/3 * 3/5 = 6/8)</td>
+                <td><div class="heatmap-cell" style="background:rgba(34, 197, 94, 0.2); color:var(--ok);">2 Students (6%)</div></td>
+                <td>Standard practice</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:24px;">
+            <h3 style="font-size:15px; font-weight:700; margin-bottom:10px;">Content Approval Queue</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--bg); border:1px solid var(--bd); border-radius:8px;">
+              <div>
+                <strong>Grade 7 Science: Force and Motion (Draft Seed)</strong>
+                <div style="font-size:12px; color:var(--mut);">Uploaded by Admin - Awaiting pedagogical review</div>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-primary" style="padding:6px 12px; font-size:12px;" onclick="approveContentSeed()">Approve</button>
+                <button class="btn-secondary" style="padding:6px 12px; font-size:12px;">Reject</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 9: ADMIN CATALOG ================= -->
+      <section id="view-admin-view" class="view-panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Curriculum Catalog Manager</h2>
+              <p class="card-subtitle">Manage concepts, questions, 4-level hints, and misconception taxonomy.</p>
+            </div>
+            <button class="btn-primary" onclick="alert('Form ready for new concept addition')">+ New Concept</button>
+          </div>
+
+          <div style="background:var(--bg); border:1px solid var(--bd); border-radius:8px; padding:16px;">
+            <div style="font-weight:700; margin-bottom:8px;">Validation Guardrail:</div>
+            <p style="font-size:13px; color:var(--mut);">Every question must link directly to an approved concept. Every distractor option must link directly to an identified misconception ID or to "gap". Unlinked items cannot be approved.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= ONBOARDING & GUARDIAN CONSENT MODAL ================= -->
+  <div id="onboarding-modal" class="modal-backdrop" style="display:none;">
+    <div class="modal-box">
+      <h2 style="font-size:18px; font-weight:700; margin-bottom:4px;">Welcome to LearnPath for Schools</h2>
+      <p style="font-size:13px; color:var(--mut); margin-bottom:18px;">Personalised, closed-loop adaptive learning for Grades 5-12.</p>
+
+      <div class="form-group">
+        <label for="onb-name">Student Full Name</label>
+        <input type="text" id="onb-name" class="form-control" value="Student Demo" placeholder="Enter student's name">
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label for="onb-grade">Grade (5 to 12)</label>
+          <select id="onb-grade" class="form-control">
+            <option value="5">Grade 5</option>
+            <option value="6">Grade 6</option>
+            <option value="7" selected>Grade 7</option>
+            <option value="8">Grade 8</option>
+            <option value="9">Grade 9</option>
+            <option value="10">Grade 10</option>
+            <option value="11">Grade 11</option>
+            <option value="12">Grade 12</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="onb-board">Education Board</label>
+          <select id="onb-board" class="form-control">
+            <option value="CBSE" selected>CBSE</option>
+            <option value="ICSE">ICSE</option>
+            <option value="State Board">State Board</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="onb-medium">Medium of Instruction</label>
+        <select id="onb-medium" class="form-control">
+          <option value="English" selected>English</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Tamil">Tamil</option>
+          <option value="Telugu">Telugu</option>
+          <option value="Kannada">Kannada</option>
+          <option value="Malayalam">Malayalam</option>
+        </select>
+      </div>
+
+      <!-- Guardian Consent for under 18 -->
+      <div style="background:var(--bg); border:1px solid var(--bd); padding:14px; border-radius:8px; margin-bottom:20px;">
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <input type="checkbox" id="onb-consent" checked style="width:18px; height:18px; margin-top:2px; accent-color:var(--ac);">
+          <div>
+            <label for="onb-consent" style="font-weight:600; font-size:13px; cursor:pointer;">Guardian Consent (Required for minors under 18)</label>
+            <p style="font-size:11px; color:var(--mut); margin-top:2px;">
+              I certify that I am the parent/guardian of this student and consent to data processing for educational adaptation under version v1.0. Emergency helpline numbers: Tele-MANAS 14416, Emergency 112.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" style="width:100%;" onclick="saveOnboarding()">Save & Start Learning</button>
+    </div>
+  </div>
+
+  <!-- UPLOAD MODAL -->
+  <div id="upload-modal" class="modal-backdrop" style="display:none;">
+    <div class="modal-box">
+      <h3 style="font-size:16px; font-weight:700; margin-bottom:12px;">Upload Library Vault Resource</h3>
+      <div class="form-group">
+        <label>Document Title</label>
+        <input type="text" id="up-title" class="form-control" placeholder="e.g. Chapter 3 Summary Notes">
+      </div>
+      <div class="form-group">
+        <label>Resource Type</label>
+        <select id="up-type" class="form-control">
+          <option value="pdf">PDF Document</option>
+          <option value="text">Plain Text</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Select File</label>
+        <input type="file" id="up-file" class="form-control">
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;">
+        <button class="btn-secondary" onclick="document.getElementById('upload-modal').style.display='none'">Cancel</button>
+        <button class="btn-primary" onclick="submitResourceUpload()">Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINISH TEST CONFIRMATION MODAL -->
+  <div id="finish-test-modal" class="modal-backdrop" style="display:none;">
+    <div class="modal-box">
+      <h3 style="font-size:16px; font-weight:700; margin-bottom:10px;">Confirm Test Submission</h3>
+      <p style="font-size:13px; color:var(--mut); margin-bottom:16px;">Are you ready to submit your test? Here is your current status:</p>
+      
+      <div style="background:var(--bg); border:1px solid var(--bd); padding:14px; border-radius:8px; margin-bottom:18px; font-size:13px; display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:space-between;"><span>Answered Questions:</span><strong id="finish-cnt-answered" style="color:var(--ok);">0</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>Unanswered Questions:</span><strong id="finish-cnt-unanswered" style="color:var(--mut);">0</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>Marked for Review:</span><strong id="finish-cnt-review" style="color:var(--warn);">0</strong></div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn-secondary" onclick="document.getElementById('finish-test-modal').style.display='none'">Resume Test</button>
+        <button class="btn-primary" style="background-color:var(--ok);" onclick="executeFinishTest()">Submit Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const PRODUCT_NAME = "LearnPath for Schools";
+    const HELPLINES = { tele_manas: "14416", emergency: "112" };
+
+    // App State
+    let appState = {
+      role: "student",
+      user: { name: "Student Demo", grade: 7, board: "CBSE", medium: "English" },
+      testSession: null,
+      currentTestQuestionIdx: 0,
+      testTimerInterval: null,
+      testSecondsRemaining: 300,
+      practiceQuestion: null,
+      practiceHintLevel: 1,
+      practiceMastery: 0.20,
+      attachedText: null
+    };
+
+    // Seed Data Cache
+    const SEED_QUESTIONS = [
+      {
+        id: "q-add-1",
+        concept_id: "con-adding-fractions",
+        stem: "What is 1/3 + 1/4?",
+        options: [
+          { id: "q-add-1-a", text: "7/12", correct: true },
+          { id: "q-add-1-b", text: "2/7", correct: false, misconception: "misc-add-num-den" },
+          { id: "q-add-1-c", text: "2/12", correct: false, misconception: "misc-no-lcm" },
+          { id: "q-add-1-d", text: "1/7", correct: false, misconception: "gap" }
+        ],
+        hints: [
+          { level: 1, text: "Think about what you need to do before you can add two fractions with different bottom numbers." },
+          { level: 2, text: "To add fractions with unlike denominators, first find the Least Common Multiple (LCM) of 3 and 4, which is 12." },
+          { level: 3, text: "Worked example: 1/2 + 1/5. LCM of 2 and 5 is 10. 1/2 = 5/10 and 1/5 = 2/10. Answer = 7/10." },
+          { level: 4, text: "Step 1: LCM is 12. Step 2: 1/3 = 4/12. Step 3: 1/4 = 3/12. Step 4: 4 + 3 = 7. Answer: 7/12." }
+        ]
+      },
+      {
+        id: "q-add-2",
+        concept_id: "con-adding-fractions",
+        stem: "What is 2/5 + 1/3?",
+        options: [
+          { id: "q-add-2-a", text: "11/15", correct: true },
+          { id: "q-add-2-b", text: "3/8", correct: false, misconception: "misc-add-num-den" },
+          { id: "q-add-2-c", text: "3/15", correct: false, misconception: "misc-no-lcm" },
+          { id: "q-add-2-d", text: "2/15", correct: false, misconception: "gap" }
+        ],
+        hints: [
+          { level: 1, text: "Find the smallest number that both 5 and 3 divide into evenly." },
+          { level: 2, text: "The LCM of 5 and 3 is 15. Convert each fraction to have denominator 15." },
+          { level: 3, text: "Worked example: 1/4 + 1/3 = 3/12 + 4/12 = 7/12." },
+          { level: 4, text: "2/5 = 6/15, 1/3 = 5/15. Add numerators: 6 + 5 = 11. Answer: 11/15." }
+        ]
+      },
+      {
+        id: "q-equiv-1",
+        concept_id: "con-equivalent-fractions",
+        stem: "Which fraction is equivalent to 3/4?",
+        options: [
+          { id: "q-equiv-1-a", text: "6/8", correct: true },
+          { id: "q-equiv-1-b", text: "6/4", correct: false, misconception: "misc-mult-num-only" },
+          { id: "q-equiv-1-c", text: "3/8", correct: false, misconception: "misc-cross-simplify-wrong" },
+          { id: "q-equiv-1-d", text: "4/5", correct: false, misconception: "gap" }
+        ],
+        hints: [
+          { level: 1, text: "Do the exact same operation to both top and bottom numbers." },
+          { level: 2, text: "Multiply both numerator and denominator by 2." },
+          { level: 3, text: "Worked example: 2/3 * (2/2) = 4/6." },
+          { level: 4, text: "3 * 2 = 6; 4 * 2 = 8. Answer: 6/8." }
+        ]
+      },
+      {
+        id: "q-mult-1",
+        concept_id: "con-multiplying-fractions",
+        stem: "What is 2/3 * 3/5?",
+        options: [
+          { id: "q-mult-1-a", text: "6/15 or 2/5", correct: true },
+          { id: "q-mult-1-b", text: "5/8", correct: false, misconception: "misc-mult-add-den" },
+          { id: "q-mult-1-c", text: "6/8", correct: false, misconception: "gap" },
+          { id: "q-mult-1-d", text: "2/15", correct: false, misconception: "gap" }
+        ],
+        hints: [
+          { level: 1, text: "Multiply straight across: top with top, bottom with bottom." },
+          { level: 2, text: "(a/b) * (c/d) = (a*c) / (b*d)." },
+          { level: 3, text: "Worked example: 1/4 * 2/3 = 2/12 = 1/6." },
+          { level: 4, text: "2 * 3 = 6; 3 * 5 = 15. Result: 6/15 = 2/5." }
+        ]
+      },
+      {
+        id: "q-mult-2",
+        concept_id: "con-multiplying-fractions",
+        stem: "What is 4/7 * 1/2?",
+        options: [
+          { id: "q-mult-2-a", text: "4/14 or 2/7", correct: true },
+          { id: "q-mult-2-b", text: "5/9", correct: false, misconception: "misc-mult-add-den" },
+          { id: "q-mult-2-c", text: "4/9", correct: false, misconception: "gap" },
+          { id: "q-mult-2-d", text: "8/7", correct: false, misconception: "gap" }
+        ],
+        hints: [
+          { level: 1, text: "Multiply straight across numerator and denominator." },
+          { level: 2, text: "4 * 1 over 7 * 2." },
+          { level: 3, text: "Worked example: 3/5 * 2/3 = 6/15 = 2/5." },
+          { level: 4, text: "4/14 simplifies to 2/7." }
+        ]
+      }
+    ];
+
+    const LIBRARY_ITEMS = [
+      { id: "lib-math-fractions-guide", title: "Understanding Fractions - Visual Guide", type: "pdf", pages: 12, grade: 7, status: "approved" },
+      { id: "lib-math-number-line", title: "Fractions on the Number Line", type: "text", pages: 5, grade: 7, status: "approved" },
+      { id: "lib-science-draft", title: "Force and Motion - Grade 7 Seed", type: "pdf", pages: 20, grade: 7, status: "draft" }
+    ];
+
+    // Initialization
+    window.addEventListener("DOMContentLoaded", () => {
+      // Check prefers-color-scheme
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        document.getElementById('theme-toggle').checked = true;
+        toggleTheme(true);
+      }
+      renderMemoryTree();
+      renderLibraryVault();
+      loadPracticeQuestion(0);
+    });
+
+    // Navigation View Switcher
+    function switchView(viewName) {
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active-view'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      const target = document.getElementById('view-' + viewName);
+      if (target) target.classList.add('active-view');
+
+      const navBtn = document.getElementById('nav-' + viewName);
+      if (navBtn) navBtn.classList.add('active');
+
+      // Close mobile menu if open
+      document.getElementById('sidebar').classList.remove('mobile-open');
+    }
+
+    function toggleMobileMenu() {
+      document.getElementById('sidebar').classList.toggle('mobile-open');
+    }
+
+    function toggleTheme(isLight) {
+      if (isLight) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    }
+
+    function changeRole(role) {
+      appState.role = role;
+      if (role === 'guardian') switchView('guardian-view');
+      else if (role === 'teacher') switchView('teacher-view');
+      else if (role === 'admin') switchView('admin-view');
+      else switchView('chats');
+    }
+
+    function showOnboardingModal() {
+      document.getElementById('onboarding-modal').style.display = 'flex';
+    }
+
+    function saveOnboarding() {
+      appState.user.name = document.getElementById('onb-name').value || "Student Demo";
+      appState.user.grade = parseInt(document.getElementById('onb-grade').value);
+      appState.user.board = document.getElementById('onb-board').value;
+      appState.user.medium = document.getElementById('onb-medium').value;
+      document.getElementById('onboarding-modal').style.display = 'none';
+      alert("Onboarding complete. Guardian consent recorded under version v1.0.");
+    }
+
+    // ================= CHAT LOGIC =================
+    function sendChatMessage() {
+      const input = document.getElementById('chat-input-text');
+      const text = input.value.trim();
+      if (!text && !appState.attachedText) return;
+
+      const userText = text || (appState.attachedText ? "Please analyze attached text: " + appState.attachedText.substring(0, 50) + "..." : "");
+      input.value = "";
+
+      appendChatMessage("user", userText);
+      clearAttachment();
+
+      // Screen for safety keywords
+      const lower = userText.toLowerCase();
+      const unsafeWords = ["kill myself", "suicide", "abuse", "molest", "hurt myself", "cut myself", "kill someone"];
+      const isUnsafe = unsafeWords.some(w => lower.includes(w));
+
+      setTimeout(() => {
+        if (isUnsafe) {
+          appendChatMessage("safety", 
+            "I'm really sorry you're going through this. You are not alone. Please reach out to a trusted adult or call one of these confidential helplines:\n" +
+            "• Tele-MANAS: " + HELPLINES.tele_manas + "\n" +
+            "• National Emergency: " + HELPLINES.emergency + "\n" +
+            "Your safety matters more than anything else."
+          );
+        } else {
+          // Normal educational response
+          let response = "That's a great question! When working with fractions, remember to keep denominators identical before adding. Would you like me to walk you through a step-by-step example?";
+          if (lower.includes("add") || lower.includes("fraction")) {
+            response = "To add fractions with unlike denominators (like 1/3 and 1/4), the first step is finding the Least Common Multiple (LCM) of 3 and 4. The LCM is 12! Then convert: 1/3 becomes 4/12 and 1/4 becomes 3/12. 4/12 + 3/12 = 7/12.";
+          }
+          appendChatMessage("tutor", response);
+        }
+      }, 400);
+    }
+
+    function appendChatMessage(type, text) {
+      const box = document.getElementById('chat-messages-box');
+      const bubble = document.createElement('div');
+      bubble.className = "chat-bubble " + type;
+      bubble.innerText = text;
+      box.appendChild(bubble);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendQuickPrompt(promptText) {
+      document.getElementById('chat-input-text').value = promptText;
+      sendChatMessage();
+    }
+
+    function handleFileAttach(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        appState.attachedText = evt.target.result;
+        document.getElementById('attachment-name').innerText = file.name;
+        document.getElementById('attachment-text-snippet').innerText = appState.attachedText.substring(0, 180) + "...";
+        document.getElementById('attachment-preview-box').style.display = 'block';
+      };
+      reader.readAsText(file);
+    }
+
+    function clearAttachment() {
+      appState.attachedText = null;
+      document.getElementById('attachment-preview-box').style.display = 'none';
+      document.getElementById('chat-file-input').value = "";
+    }
+
+    // ================= MOCK TEST FLOW =================
+    function selectTestSource(src) {
+      document.querySelectorAll('[id^="source-card-"]').forEach(c => c.classList.remove('selected'));
+      document.getElementById('source-card-' + src).classList.add('selected');
+      document.getElementById('source-' + src).checked = true;
+
+      document.getElementById('topic-input-container').style.display = (src === 'topic') ? 'block' : 'none';
+    }
+
+    function toggleCustomTestFields() {
+      const f = document.getElementById('custom-test-fields');
+      f.style.display = (f.style.display === 'none') ? 'block' : 'none';
+    }
+
+    function startMockTestQuick() {
+      runMockTestGeneration(5, 5, "CBSE Grade 7 Maths Curriculum Test", true);
+    }
+
+    function startMockTestCustom() {
+      const qCount = parseInt(document.getElementById('test-q-count').value);
+      const minutes = parseInt(document.getElementById('test-time-limit').value);
+      const isTopic = document.getElementById('source-topic').checked;
+      const title = isTopic ? "Custom Topic Test" : "Custom Grade 7 Exam";
+      runMockTestGeneration(qCount, minutes, title, !isTopic);
+    }
+
+    function runMockTestGeneration(qCount, minutes, title, isReviewed) {
+      const progressBox = document.getElementById('test-gen-progress');
+      const label = document.getElementById('gen-step-label');
+      const fill = document.getElementById('gen-progress-fill');
+
+      progressBox.style.display = 'block';
+      fill.style.width = '25%';
+      label.innerText = "Analyzing test configuration…";
+
+      setTimeout(() => {
+        fill.style.width = '50%';
+        label.innerText = "Generating questions…";
+      }, 500);
+
+      setTimeout(() => {
+        fill.style.width = '75%';
+        label.innerText = "Preparing test environment…";
+      }, 1000);
+
+      setTimeout(() => {
+        fill.style.width = '100%';
+        label.innerText = "Redirecting to test…";
+      }, 1500);
+
+      setTimeout(() => {
+        progressBox.style.display = 'none';
+        initiateTestTakingSession(qCount, minutes, title, isReviewed);
+      }, 1800);
+    }
+
+    function initiateTestTakingSession(qCount, minutes, title, isReviewed) {
+      document.getElementById('mock-setup-section').style.display = 'none';
+      document.getElementById('mock-results-section').style.display = 'none';
+      document.getElementById('mock-taking-section').style.display = 'block';
+
+      const badge = document.getElementById('test-type-badge');
+      if (isReviewed) {
+        badge.className = "badge badge-ok";
+        badge.innerText = "Teacher-Reviewed Curriculum Test";
+      } else {
+        badge.className = "badge badge-warn";
+        badge.innerText = "Not teacher-reviewed";
+      }
+      document.getElementById('test-display-title').innerText = title;
+
+      // Prepare questions without answer keys
+      const questionsSubset = SEED_QUESTIONS.slice(0, Math.min(qCount, SEED_QUESTIONS.length)).map(q => ({
+        id: q.id,
+        stem: q.stem,
+        options: q.options.map(o => ({ id: o.id, text: o.text })), // answer key stripped!
+        userSelected: null,
+        reviewLater: false
+      }));
+
+      appState.testSession = {
+        title: title,
+        isReviewed: isReviewed,
+        questions: questionsSubset,
+        durationMinutes: minutes
+      };
+      appState.currentTestQuestionIdx = 0;
+      appState.testSecondsRemaining = minutes * 60;
+
+      startTestTimer();
+      renderTestQuestion();
+      renderPaletteGrid();
+    }
+
+    function startTestTimer() {
+      if (appState.testTimerInterval) clearInterval(appState.testTimerInterval);
+      updateTimerDisplay();
+
+      appState.testTimerInterval = setInterval(() => {
+        appState.testSecondsRemaining--;
+        updateTimerDisplay();
+
+        if (appState.testSecondsRemaining <= 0) {
+          clearInterval(appState.testTimerInterval);
+          alert("Time is up! The test is auto-submitting now.");
+          executeFinishTest();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(appState.testSecondsRemaining / 60);
+      const secs = appState.testSecondsRemaining % 60;
+      const str = (mins < 10 ? "0" : "") + mins + ":" + (secs < 10 ? "0" : "") + secs;
+      const el = document.getElementById('test-timer-display');
+      el.innerText = str;
+      if (appState.testSecondsRemaining < 60) {
+        el.style.color = "var(--bad)";
+      } else {
+        el.style.color = "var(--ok)";
+      }
+    }
+
+    function renderTestQuestion() {
+      const q = appState.testSession.questions[appState.currentTestQuestionIdx];
+      document.getElementById('question-number-badge').innerText = `Question ${appState.currentTestQuestionIdx + 1} of ${appState.testSession.questions.length}`;
+      document.getElementById('mock-question-stem').innerText = q.stem;
+
+      const optsContainer = document.getElementById('mock-options-container');
+      optsContainer.innerHTML = "";
+
+      q.options.forEach(opt => {
+        const card = document.createElement('div');
+        card.className = "option-card" + (q.userSelected === opt.id ? " selected" : "");
+        card.onclick = () => selectMockOption(opt.id);
+
+        card.innerHTML = `
+          <input type="radio" name="mock-opt" ${q.userSelected === opt.id ? "checked" : ""} class="option-radio">
+          <div style="font-size:15px; font-weight:500;">${opt.text}</div>
+        `;
+        optsContainer.appendChild(card);
+      });
+
+      document.getElementById('btn-prev-q').disabled = (appState.currentTestQuestionIdx === 0);
+      document.getElementById('btn-next-q').style.display = (appState.currentTestQuestionIdx === appState.testSession.questions.length - 1) ? "none" : "inline-flex";
+    }
+
+    function selectMockOption(optId) {
+      const q = appState.testSession.questions[appState.currentTestQuestionIdx];
+      q.userSelected = optId;
+      renderTestQuestion();
+      renderPaletteGrid();
+    }
+
+    function clearCurrentAnswer() {
+      const q = appState.testSession.questions[appState.currentTestQuestionIdx];
+      q.userSelected = null;
+      renderTestQuestion();
+      renderPaletteGrid();
+    }
+
+    function markForReview() {
+      const q = appState.testSession.questions[appState.currentTestQuestionIdx];
+      q.reviewLater = !q.reviewLater;
+      renderPaletteGrid();
+    }
+
+    function navTestQuestion(dir) {
+      const newIdx = appState.currentTestQuestionIdx + dir;
+      if (newIdx >= 0 && newIdx < appState.testSession.questions.length) {
+        appState.currentTestQuestionIdx = newIdx;
+        renderTestQuestion();
+        renderPaletteGrid();
+      }
+    }
+
+    function renderPaletteGrid() {
+      const grid = document.getElementById('test-palette-grid');
+      grid.innerHTML = "";
+
+      appState.testSession.questions.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "palette-btn";
+        btn.innerText = idx + 1;
+        if (idx === appState.currentTestQuestionIdx) btn.classList.add('active');
+
+        if (q.reviewLater) btn.classList.add('review');
+        else if (q.userSelected !== null) btn.classList.add('answered');
+
+        btn.onclick = () => {
+          appState.currentTestQuestionIdx = idx;
+          renderTestQuestion();
+          renderPaletteGrid();
+        };
+        grid.appendChild(btn);
+      });
+    }
+
+    function confirmFinishTest() {
+      let answered = 0, unanswered = 0, review = 0;
+      appState.testSession.questions.forEach(q => {
+        if (q.reviewLater) review++;
+        if (q.userSelected !== null) answered++;
+        else unanswered++;
+      });
+
+      document.getElementById('finish-cnt-answered').innerText = answered;
+      document.getElementById('finish-cnt-unanswered').innerText = unanswered;
+      document.getElementById('finish-cnt-review').innerText = review;
+      document.getElementById('finish-test-modal').style.display = 'flex';
+    }
+
+    function executeFinishTest() {
+      document.getElementById('finish-test-modal').style.display = 'none';
+      if (appState.testTimerInterval) clearInterval(appState.testTimerInterval);
+
+      // Scoring on server logic: +1 correct, -0.25 wrong, 0 skipped
+      let correct = 0, wrong = 0, skipped = 0, score = 0;
+      const details = [];
+
+      appState.testSession.questions.forEach(q => {
+        const fullQ = SEED_QUESTIONS.find(sq => sq.id === q.id);
+        const correctOpt = fullQ.options.find(o => o.correct);
+
+        if (q.userSelected === null) {
+          skipped++;
+          details.push({ stem: q.stem, selected: "Skipped", correct: correctOpt.text, points: 0, status: "skipped" });
+        } else if (q.userSelected === correctOpt.id) {
+          correct++;
+          score += 1.0;
+          details.push({ stem: q.stem, selected: fullQ.options.find(o => o.id === q.userSelected).text, correct: correctOpt.text, points: 1.0, status: "correct" });
+        } else {
+          wrong++;
+          score -= 0.25;
+          details.push({ stem: q.stem, selected: fullQ.options.find(o => o.id === q.userSelected).text, correct: correctOpt.text, points: -0.25, status: "wrong" });
+        }
+      });
+
+      const total = appState.testSession.questions.length;
+      const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+      // Render Results
+      document.getElementById('mock-taking-section').style.display = 'none';
+      document.getElementById('mock-results-section').style.display = 'block';
+
+      document.getElementById('res-score-val').innerText = `${score.toFixed(2)} / ${total}.0`;
+      document.getElementById('res-accuracy-val').innerText = `${accuracy}%`;
+      document.getElementById('res-breakdown-val').innerText = `${correct} / ${wrong} / ${skipped}`;
+
+      const badge = document.getElementById('results-reviewed-badge');
+      if (appState.testSession.isReviewed) {
+        badge.className = "badge badge-ok";
+        badge.innerText = "Teacher-Reviewed Curriculum Test";
+      } else {
+        badge.className = "badge badge-warn";
+        badge.innerText = "Not teacher-reviewed";
+      }
+
+      // Detailed answer list
+      const ansList = document.getElementById('results-answers-list');
+      ansList.innerHTML = "";
+      details.forEach((d, idx) => {
+        const row = document.createElement('div');
+        row.style.cssText = "background:var(--bg); border:1px solid var(--bd); padding:14px; border-radius:8px;";
+        const isOk = d.status === "correct";
+        row.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>Q${idx + 1}: ${d.stem}</strong>
+            <span class="badge ${isOk ? 'badge-ok' : (d.status === 'wrong' ? 'badge-bad' : 'badge-draft')}">${d.points > 0 ? '+' : ''}${d.points}</span>
+          </div>
+          <div style="font-size:13px; margin-top:6px; color:var(--mut);">
+            Your Answer: <span style="color:var(--tx);">${d.selected}</span> | Correct Answer: <span style="color:var(--ok);">${d.correct}</span>
+          </div>
+          <button class="btn-secondary" style="font-size:11px; padding:4px 8px; min-height:28px; margin-top:8px;" onclick="sendQuickPrompt('Explain this test question: ${d.stem}. Correct answer is ${d.correct}')">
+            Ask AI to Explain
+          </button>
+        `;
+        ansList.appendChild(row);
+      });
+    }
+
+    function switchResultTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.getElementById('tab-res-summary').style.display = (tabName === 'summary') ? 'block' : 'none';
+      document.getElementById('tab-res-answers').style.display = (tabName === 'answers') ? 'block' : 'none';
+      document.getElementById('tab-res-time').style.display = (tabName === 'time') ? 'block' : 'none';
+    }
+
+    function resetMockTestSetup() {
+      document.getElementById('mock-results-section').style.display = 'none';
+      document.getElementById('mock-taking-section').style.display = 'none';
+      document.getElementById('mock-setup-section').style.display = 'block';
+    }
+
+    // ================= PRACTICE LOGIC =================
+    function loadPracticeQuestion(idx) {
+      const q = SEED_QUESTIONS[idx % SEED_QUESTIONS.length];
+      appState.practiceQuestion = q;
+      appState.practiceHintLevel = 1;
+
+      document.getElementById('practice-concept-name').innerText = "Adding Fractions";
+      document.getElementById('practice-stem').innerText = q.stem;
+      document.getElementById('hint-display-box').style.display = 'none';
+      document.getElementById('practice-feedback-box').style.display = 'none';
+      document.getElementById('btn-next-practice').style.display = 'none';
+      document.getElementById('btn-check-practice').style.display = 'inline-flex';
+      document.getElementById('hint-level-btn-num').innerText = "1";
+
+      const box = document.getElementById('practice-options-box');
+      box.innerHTML = "";
+
+      q.options.forEach(opt => {
+        const card = document.createElement('div');
+        card.className = "option-card";
+        card.onclick = () => {
+          document.querySelectorAll('#practice-options-box .option-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          card.querySelector('input').checked = true;
+        };
+
+        card.innerHTML = `
+          <input type="radio" name="practice-opt" value="${opt.id}" class="option-radio">
+          <span style="font-size:15px; font-weight:500;">${opt.text}</span>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    function requestNextHint() {
+      const q = appState.practiceQuestion;
+      const level = appState.practiceHintLevel;
+      const hint = q.hints.find(h => h.level === level) || q.hints[q.hints.length - 1];
+
+      document.getElementById('hint-display-box').style.display = 'block';
+      const titles = ["Hint Level 1 (Idea Prompt)", "Hint Level 2 (Short Explanation)", "Hint Level 3 (Worked Example)", "Hint Level 4 (Step-by-Step Next Step)"];
+      document.getElementById('hint-level-title').innerText = titles[level - 1] || `Hint Level ${level}`;
+      document.getElementById('hint-step-indicator').innerText = `Level ${level} of 4`;
+      document.getElementById('hint-text-content').innerText = hint.text;
+
+      if (level < 4) {
+        appState.practiceHintLevel++;
+        document.getElementById('hint-level-btn-num').innerText = appState.practiceHintLevel;
+      }
+    }
+
+    function submitPracticeAnswer() {
+      const selectedRadio = document.querySelector('input[name="practice-opt"]:checked');
+      if (!selectedRadio) {
+        alert("Please select an answer first.");
+        return;
+      }
+
+      const q = appState.practiceQuestion;
+      const chosenOpt = q.options.find(o => o.id === selectedRadio.value);
+      const feedbackBox = document.getElementById('practice-feedback-box');
+      feedbackBox.style.display = 'block';
+
+      if (chosenOpt.correct) {
+        // BKT: correct response raises mastery
+        appState.practiceMastery = Math.min(1.0, appState.practiceMastery + 0.15);
+        feedbackBox.style.background = "rgba(34, 197, 94, 0.15)";
+        feedbackBox.style.border = "1px solid var(--ok)";
+        feedbackBox.innerHTML = `
+          <strong style="color:var(--ok);">Correct! Great work.</strong>
+          <p style="font-size:13px; color:var(--tx); margin-top:4px;">Unaided answer validated. BKT mastery updated to ${appState.practiceMastery.toFixed(2)}.</p>
+        `;
+      } else {
+        feedbackBox.style.background = "rgba(239, 68, 68, 0.15)";
+        feedbackBox.style.border = "1px solid var(--bad)";
+        const miscName = chosenOpt.misconception === "misc-add-num-den" ? "Adding both numerator and denominator" : "General gap in fractions";
+        feedbackBox.innerHTML = `
+          <strong style="color:var(--bad);">Incorrect.</strong>
+          <p style="font-size:13px; color:var(--tx); margin-top:4px;">Diagnosed Misconception: <strong>${miscName}</strong>. Hint ladder escalated.</p>
+        `;
+        requestNextHint();
+      }
+
+      // Update BKT bar
+      const pct = Math.round(appState.practiceMastery * 100);
+      document.getElementById('practice-mastery-bar').style.width = pct + "%";
+      document.getElementById('practice-mastery-text').innerText = appState.practiceMastery.toFixed(2);
+
+      document.getElementById('btn-check-practice').style.display = 'none';
+      document.getElementById('btn-next-practice').style.display = 'inline-flex';
+
+      if (appState.practiceMastery >= 0.8) {
+        document.getElementById('btn-transfer-check').style.display = 'inline-flex';
+      }
+    }
+
+    function loadNextPracticeQuestion() {
+      loadPracticeQuestion(1);
+    }
+
+    function triggerTransferCheck() {
+      alert("Transfer Check Activated: Transfer challenge question loaded with ZERO hints permitted. A correct answer will confirm concept mastery.");
+      loadPracticeQuestion(2);
+      document.getElementById('btn-request-hint').disabled = true;
+    }
+
+    // ================= MEMORY TREE =================
+    function renderMemoryTree() {
+      const grid = document.getElementById('memory-tree-grid');
+      grid.innerHTML = "";
+
+      const concepts = [
+        { id: "con-adding-fractions", name: "Adding Fractions with Unlike Denominators", mastery: 0.92, status: "mastered", prereq: "None" },
+        { id: "con-equivalent-fractions", name: "Equivalent Fractions", mastery: 0.50, status: "in-progress", prereq: "Adding Fractions" },
+        { id: "con-multiplying-fractions", name: "Multiplying Fractions", mastery: 0.0, status: "not-started", prereq: "Equivalent Fractions", locked: true }
+      ];
+
+      concepts.forEach(c => {
+        const card = document.createElement('div');
+        card.className = "concept-card" + (c.locked ? " locked" : "");
+        const statusBadge = c.status === 'mastered' ? '<span class="badge badge-ok">Mastered</span>' : (c.status === 'in-progress' ? '<span class="badge badge-warn">In Progress</span>' : '<span class="badge badge-draft">Locked</span>');
+
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+            ${statusBadge}
+            <span style="font-size:12px; color:var(--mut);">Prereq: ${c.prereq}</span>
+          </div>
+          <h4 style="font-size:16px; font-weight:700; margin-bottom:14px;">${c.name}</h4>
+          <div class="progress-track" style="margin-bottom:8px;">
+            <div class="progress-fill" style="width:${Math.round(c.mastery * 100)}%;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--mut);">
+            <span>BKT Mastery Score</span>
+            <strong style="color:var(--tx);">${c.mastery.toFixed(2)} / 1.0</strong>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // ================= LIBRARY VAULT =================
+    function renderLibraryVault() {
+      const grid = document.getElementById('library-grid');
+      grid.innerHTML = "";
+
+      LIBRARY_ITEMS.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "concept-card";
+        const isApp = item.status === "approved";
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span class="badge ${isApp ? 'badge-ok' : 'badge-warn'}">${isApp ? 'Approved for Tests' : 'Draft Seed'}</span>
+            <span style="font-size:12px; color:var(--mut);">${item.type.toUpperCase()} • ${item.pages} pgs</span>
+          </div>
+          <h4 style="font-size:15px; font-weight:700; margin-bottom:8px;">${item.title}</h4>
+          <span style="font-size:12px; color:var(--mut);">Grade ${item.grade} Curriculum</span>
+          <div style="margin-top:14px;">
+            <button class="btn-secondary" style="font-size:12px; padding:6px 12px;" onclick="selectTestSource('vault'); switchView('mock-test');">
+              Use in Mock Test
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterLibrary() {
+      // Filter logic hooked to search input
+      renderLibraryVault();
+    }
+
+    function showUploadModal() {
+      document.getElementById('upload-modal').style.display = 'flex';
+    }
+
+    function submitResourceUpload() {
+      const title = document.getElementById('up-title').value;
+      if (!title) { alert("Please enter title"); return; }
+      LIBRARY_ITEMS.push({ id: "lib-" + Date.now(), title: title, type: "pdf", pages: 8, grade: 7, status: "draft" });
+      document.getElementById('upload-modal').style.display = 'none';
+      renderLibraryVault();
+      alert("Resource uploaded as draft. Pending teacher pedagogical approval.");
+    }
+
+    function approveContentSeed() {
+      alert("Grade 7 Science approved. Added to available curriculum pool.");
+      switchView('library-vault');
+    }
+  </script>
+</body>
+</html>

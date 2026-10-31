@@ -1,0 +1,170 @@
+{
+  "subject": {
+    "id": "subj-math-7",
+    "name": "Mathematics",
+    "grade": 7,
+    "board": "CBSE",
+    "medium": "English",
+    "status": "approved"
+  },
+  "concepts": [
+    {
+      "id": "con-adding-fractions",
+      "subject_id": "subj-math-7",
+      "name": "Adding Fractions with Unlike Denominators",
+      "prerequisites": [],
+      "order_num": 1,
+      "status": "approved"
+    },
+    {
+      "id": "con-equivalent-fractions",
+      "subject_id": "subj-math-7",
+      "name": "Equivalent Fractions",
+      "prerequisites": ["con-adding-fractions"],
+      "order_num": 2,
+      "status": "approved"
+    },
+    {
+      "id": "con-multiplying-fractions",
+      "subject_id": "subj-math-7",
+      "name": "Multiplying Fractions",
+      "prerequisites": ["con-equivalent-fractions"],
+      "order_num": 3,
+      "status": "approved"
+    }
+  ],
+  "misconceptions": [
+    {
+      "id": "misc-add-num-den",
+      "concept_id": "con-adding-fractions",
+      "description": "Student adds both numerator and denominator (e.g. 1/3 + 1/4 = 2/7)",
+      "status": "approved"
+    },
+    {
+      "id": "misc-no-lcm",
+      "concept_id": "con-adding-fractions",
+      "description": "Student adds fractions without finding a common denominator",
+      "status": "approved"
+    },
+    {
+      "id": "misc-mult-num-only",
+      "concept_id": "con-equivalent-fractions",
+      "description": "Student multiplies only the numerator when finding equivalent fractions",
+      "status": "approved"
+    },
+    {
+      "id": "misc-cross-simplify-wrong",
+      "concept_id": "con-equivalent-fractions",
+      "description": "Student incorrectly cross-simplifies fractions that are not being multiplied",
+      "status": "approved"
+    },
+    {
+      "id": "misc-mult-add-den",
+      "concept_id": "con-multiplying-fractions",
+      "description": "Student adds denominators instead of multiplying them when multiplying fractions",
+      "status": "approved"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q-add-1",
+      "concept_id": "con-adding-fractions",
+      "stem": "What is 1/3 + 1/4?",
+      "options": [
+        {"id": "q-add-1-a", "text": "7/12", "correct": true, "misconception_id": null},
+        {"id": "q-add-1-b", "text": "2/7", "correct": false, "misconception_id": "misc-add-num-den"},
+        {"id": "q-add-1-c", "text": "2/12", "correct": false, "misconception_id": "misc-no-lcm"},
+        {"id": "q-add-1-d", "text": "1/7", "correct": false, "misconception_id": "gap"}
+      ],
+      "difficulty": "medium",
+      "is_diagnostic": true,
+      "is_transfer": false,
+      "hints": [
+        {"level": 1, "text": "Think about what you need to do before you can add two fractions with different bottom numbers."},
+        {"level": 2, "text": "To add fractions with unlike denominators, first find the Least Common Multiple (LCM) of the denominators. The LCM of 3 and 4 is 12."},
+        {"level": 3, "text": "Worked example with different numbers: 1/2 + 1/5. LCM of 2 and 5 is 10. So 1/2 = 5/10 and 1/5 = 2/10. Answer: 5/10 + 2/10 = 7/10."},
+        {"level": 4, "text": "Step 1: Find LCM of 3 and 4, which is 12. Step 2: Convert 1/3 to 4/12. Step 3: Convert 1/4 to 3/12. Step 4: Add the numerators: 4 + 3 = 7. The answer is 7/12."}
+      ]
+    },
+    {
+      "id": "q-add-2",
+      "concept_id": "con-adding-fractions",
+      "stem": "What is 2/5 + 1/3?",
+      "options": [
+        {"id": "q-add-2-a", "text": "11/15", "correct": true, "misconception_id": null},
+        {"id": "q-add-2-b", "text": "3/8", "correct": false, "misconception_id": "misc-add-num-den"},
+        {"id": "q-add-2-c", "text": "3/15", "correct": false, "misconception_id": "misc-no-lcm"},
+        {"id": "q-add-2-d", "text": "2/15", "correct": false, "misconception_id": "gap"}
+      ],
+      "difficulty": "medium",
+      "is_diagnostic": true,
+      "is_transfer": false,
+      "hints": [
+        {"level": 1, "text": "What is the smallest number that both 5 and 3 divide into evenly?"},
+        {"level": 2, "text": "The LCM of 5 and 3 is 15. Convert each fraction so its denominator is 15, then add the numerators."},
+        {"level": 3, "text": "Worked example: 3/4 + 1/6. LCM of 4 and 6 is 12. 3/4 = 9/12 and 1/6 = 2/12. Answer: 9/12 + 2/12 = 11/12."},
+        {"level": 4, "text": "Step 1: LCM of 5 and 3 is 15. Step 2: 2/5 = 6/15. Step 3: 1/3 = 5/15. Step 4: 6/15 + 5/15 = 11/15."}
+      ]
+    },
+    {
+      "id": "q-equiv-1",
+      "concept_id": "con-equivalent-fractions",
+      "stem": "Which fraction is equivalent to 3/4?",
+      "options": [
+        {"id": "q-equiv-1-a", "text": "6/8", "correct": true, "misconception_id": null},
+        {"id": "q-equiv-1-b", "text": "6/4", "correct": false, "misconception_id": "misc-mult-num-only"},
+        {"id": "q-equiv-1-c", "text": "3/8", "correct": false, "misconception_id": "misc-cross-simplify-wrong"},
+        {"id": "q-equiv-1-d", "text": "4/5", "correct": false, "misconception_id": "gap"}
+      ],
+      "difficulty": "medium",
+      "is_diagnostic": true,
+      "is_transfer": false,
+      "hints": [
+        {"level": 1, "text": "To find an equivalent fraction, you need to do the same thing to both the top and the bottom."},
+        {"level": 2, "text": "Multiply both the numerator and the denominator by the same number. Try multiplying 3/4 by 2/2."},
+        {"level": 3, "text": "Worked example: Find a fraction equivalent to 2/3. Multiply top and bottom by 3: 2*3 = 6, 3*3 = 9. So 6/9 is equivalent to 2/3."},
+        {"level": 4, "text": "Step 1: Choose a multiplier, say 2. Step 2: Multiply numerator: 3 * 2 = 6. Step 3: Multiply denominator: 4 * 2 = 8. Answer: 6/8."}
+      ]
+    },
+    {
+      "id": "q-mult-1",
+      "concept_id": "con-multiplying-fractions",
+      "stem": "What is 2/3 * 3/5?",
+      "options": [
+        {"id": "q-mult-1-a", "text": "6/15 or 2/5", "correct": true, "misconception_id": null},
+        {"id": "q-mult-1-b", "text": "5/8", "correct": false, "misconception_id": "misc-mult-add-den"},
+        {"id": "q-mult-1-c", "text": "6/8", "correct": false, "misconception_id": "gap"},
+        {"id": "q-mult-1-d", "text": "2/15", "correct": false, "misconception_id": "gap"}
+      ],
+      "difficulty": "medium",
+      "is_diagnostic": true,
+      "is_transfer": false,
+      "hints": [
+        {"level": 1, "text": "When multiplying fractions, what do you do with the numerators and what do you do with the denominators?"},
+        {"level": 2, "text": "To multiply fractions, multiply the numerators together and multiply the denominators together: (a/b) * (c/d) = (a*c)/(b*d)."},
+        {"level": 3, "text": "Worked example: 1/4 * 2/3 = (1*2)/(4*3) = 2/12 = 1/6."},
+        {"level": 4, "text": "Step 1: Multiply numerators: 2 * 3 = 6. Step 2: Multiply denominators: 3 * 5 = 15. Step 3: Result is 6/15. Step 4: Simplify by dividing both by 3: 2/5."}
+      ]
+    },
+    {
+      "id": "q-mult-2",
+      "concept_id": "con-multiplying-fractions",
+      "stem": "What is 4/7 * 1/2?",
+      "options": [
+        {"id": "q-mult-2-a", "text": "4/14 or 2/7", "correct": true, "misconception_id": null},
+        {"id": "q-mult-2-b", "text": "5/9", "correct": false, "misconception_id": "misc-mult-add-den"},
+        {"id": "q-mult-2-c", "text": "4/9", "correct": false, "misconception_id": "gap"},
+        {"id": "q-mult-2-d", "text": "8/7", "correct": false, "misconception_id": "gap"}
+      ],
+      "difficulty": "medium",
+      "is_diagnostic": true,
+      "is_transfer": false,
+      "hints": [
+        {"level": 1, "text": "Remember the rule: multiply straight across, top with top, bottom with bottom."},
+        {"level": 2, "text": "Multiply numerators: 4 * 1. Multiply denominators: 7 * 2. Then simplify if possible."},
+        {"level": 3, "text": "Worked example: 3/5 * 2/3 = (3*2)/(5*3) = 6/15 = 2/5."},
+        {"level": 4, "text": "Step 1: Numerators: 4 * 1 = 4. Step 2: Denominators: 7 * 2 = 14. Step 3: Result: 4/14. Step 4: Simplify: divide both by 2 to get 2/7."}
+      ]
+    }
+  ]
+}

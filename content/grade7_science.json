@@ -1,0 +1,13 @@
+{
+  "subject": {
+    "id": "subj-science-7",
+    "name": "Science",
+    "grade": 7,
+    "board": "CBSE",
+    "medium": "English",
+    "status": "draft"
+  },
+  "concepts": [],
+  "misconceptions": [],
+  "questions": []
+}

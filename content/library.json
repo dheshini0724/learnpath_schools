@@ -1,0 +1,34 @@
+{
+  "resources": [
+    {
+      "id": "lib-math-fractions-guide",
+      "title": "Understanding Fractions - A Visual Guide",
+      "type": "pdf",
+      "pages": 12,
+      "grade": 7,
+      "subject_id": "subj-math-7",
+      "status": "approved",
+      "description": "An illustrated guide to understanding fractions, equivalent fractions, and basic operations."
+    },
+    {
+      "id": "lib-math-number-line",
+      "title": "Fractions on the Number Line",
+      "type": "text",
+      "pages": 5,
+      "grade": 7,
+      "subject_id": "subj-math-7",
+      "status": "approved",
+      "description": "Practice placing fractions on a number line and comparing their sizes."
+    },
+    {
+      "id": "lib-science-draft",
+      "title": "Introduction to Force and Motion",
+      "type": "pdf",
+      "pages": 20,
+      "grade": 7,
+      "subject_id": "subj-science-7",
+      "status": "draft",
+      "description": "Draft material covering Newton's laws of motion for grade 7."
+    }
+  ]
+}

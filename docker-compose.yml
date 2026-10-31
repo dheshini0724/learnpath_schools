@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: learnpath_db
+    environment:
+      POSTGRES_USER: learnpath
+      POSTGRES_PASSWORD: learnpath_secure_password
+      POSTGRES_DB: learnpath_schools
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U learnpath -d learnpath_schools"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: learnpath_api
+    environment:
+      DATABASE_URL: postgresql://learnpath:learnpath_secure_password@db:5432/learnpath_schools
+      STORE_JSON_PATH: store.json
+      EVENTS_LOG_PATH: events.jsonl
+      JWT_SECRET: production-grade-secret-key-32-chars-long!
+      MIN_CONSENT_AGE: "18"
+      CONSENT_VERSION: "v1.0"
+      PRODUCT_NAME: "LearnPath for Schools"
+      HELPLINE_TELE_MANAS: "14416"
+      HELPLINE_EMERGENCY: "112"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+
+volumes:
+  pgdata:
